@@ -1,0 +1,1583 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YTK Post Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ── YTK Design Tokens ── */
+:root {
+  --green-dark:   #396B14;
+  --green-mid:    #448650;
+  --green-hover:  #2E5610;
+  --green-tint:   #EBF3E4;
+  --green-muted:  #EEF4E8;
+  --red:          #CC3333;
+  --red-tint:     #FAECEC;
+  --amber:        #A0720A;
+  --amber-tint:   #FEF7E6;
+  --blue:         #185FA5;
+  --blue-tint:    #E6F1FB;
+  --bg:           #FFFFFF;
+  --bg-subtle:    #F6F9F3;
+  --bg-muted:     #EEF4E8;
+  --bg-inv:       #1A2E0F;
+  --text-1:       #1C2B12;
+  --text-2:       #5A6B4E;
+  --text-3:       #9AAA8A;
+  --border:       rgba(57,107,20,0.12);
+  --border-strong:rgba(57,107,20,0.22);
+  --shadow-sm:    0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md:    0 4px 16px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.04);
+  --r-sm: 4px; --r-md: 8px; --r-lg: 12px; --r-xl: 16px;
+  --font: 'Be Vietnam Pro', system-ui, sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font); background: var(--bg-subtle); color: var(--text-1); font-size: 14px; line-height: 1.6; min-height: 100vh; }
+
+/* ── Layout ── */
+.app { display: grid; grid-template-columns: 240px 1fr; grid-template-rows: 52px 1fr; min-height: 100vh; }
+.topbar { grid-column: 1/-1; background: var(--bg); border-bottom: 0.5px solid var(--border); display: flex; align-items: center; padding: 0 20px; gap: 12px; z-index: 10; }
+.sidebar { background: var(--bg-subtle); border-right: 0.5px solid var(--border); padding: 16px 8px; display: flex; flex-direction: column; gap: 2px; }
+.main { overflow-y: auto; padding: 28px 32px; }
+
+/* ── Topbar ── */
+.topbar-logo { display: flex; align-items: center; gap: 8px; }
+.topbar-logo-mark { width: 28px; height: 28px; background: var(--green-dark); border-radius: 6px; display: flex; align-items: center; justify-content: center; }
+.topbar-logo-mark span { color: white; font-weight: 700; font-size: 13px; }
+.topbar-brand { font-weight: 700; font-size: 15px; color: var(--text-1); }
+.topbar-brand em { color: var(--green-dark); font-style: normal; }
+.topbar-spacer { flex: 1; }
+.topbar-badge { padding: 3px 10px; background: var(--green-tint); border-radius: 99px; font-size: 12px; font-weight: 500; color: var(--green-dark); }
+
+/* ── Sidebar nav ── */
+.nav-section { font-size: 10px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: .06em; padding: 12px 8px 4px; }
+.nav-item { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border-radius: var(--r-md); font-size: 13px; font-weight: 400; color: var(--text-2); cursor: pointer; transition: background 100ms, color 100ms; border: none; background: transparent; width: 100%; text-align: left; }
+.nav-item:hover { background: var(--bg-muted); color: var(--text-1); }
+.nav-item.active { background: var(--green-tint); color: var(--green-dark); font-weight: 500; border-left: 2px solid var(--green-dark); border-radius: 0 var(--r-md) var(--r-md) 0; margin-left: -2px; padding-left: 10px; }
+.nav-item .icon { width: 16px; height: 16px; flex-shrink: 0; opacity: .7; }
+.nav-item.active .icon { opacity: 1; }
+.nav-sep { height: 0.5px; background: var(--border); margin: 8px 4px; }
+
+/* ── Cards ── */
+.card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--r-lg); padding: 20px 24px; }
+.card-sm { padding: 14px 18px; }
+.section-title { font-size: 18px; font-weight: 600; color: var(--text-1); margin-bottom: 4px; }
+.section-sub { font-size: 13px; color: var(--text-2); margin-bottom: 20px; }
+
+/* ── Forms ── */
+.form-row { display: grid; gap: 14px; margin-bottom: 14px; }
+.form-row.cols-2 { grid-template-columns: 1fr 1fr; }
+.form-row.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+.form-row.cols-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+label { display: block; font-size: 12px; font-weight: 500; color: var(--text-2); margin-bottom: 5px; }
+input, select, textarea { width: 100%; padding: 8px 11px; border: 0.5px solid var(--border-strong); border-radius: var(--r-md); font-family: var(--font); font-size: 13px; color: var(--text-1); background: var(--bg); transition: border 120ms; outline: none; }
+input:focus, select:focus, textarea:focus { border-color: var(--green-dark); box-shadow: 0 0 0 3px rgba(57,107,20,0.10); }
+textarea { resize: vertical; min-height: 100px; line-height: 1.6; }
+
+/* ── Buttons ── */
+.btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; font-family: var(--font); font-size: 13px; font-weight: 500; border-radius: var(--r-md); cursor: pointer; transition: all 120ms; border: 0.5px solid var(--border-strong); white-space: nowrap; }
+.btn-primary { background: var(--green-dark); color: white; border-color: transparent; }
+.btn-primary:hover { background: var(--green-hover); }
+.btn-secondary { background: var(--bg); color: var(--text-1); }
+.btn-secondary:hover { background: var(--bg-muted); }
+.btn-ghost { background: transparent; border-color: transparent; color: var(--text-2); }
+.btn-ghost:hover { background: var(--bg-muted); color: var(--text-1); }
+.btn-danger { background: var(--red-tint); color: var(--red); border-color: transparent; }
+.btn-danger:hover { opacity: .85; }
+.btn-sm { padding: 5px 11px; font-size: 12px; }
+.btn-lg { padding: 11px 22px; font-size: 14px; }
+.btn:disabled { opacity: .4; pointer-events: none; }
+
+/* ── Badges ── */
+.badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 99px; font-size: 11px; font-weight: 500; white-space: nowrap; }
+.badge-green { background: var(--green-tint); color: var(--green-dark); }
+.badge-amber { background: var(--amber-tint); color: var(--amber); }
+.badge-red { background: var(--red-tint); color: var(--red); }
+.badge-blue { background: var(--blue-tint); color: var(--blue); }
+.badge-gray { background: var(--bg-muted); color: var(--text-2); }
+
+/* ── Views ── */
+.view { display: none; }
+.view.active { display: block; }
+
+/* ── Page: Compose ── */
+.compose-grid { display: grid; grid-template-columns: 1fr 420px; gap: 20px; align-items: start; }
+.compose-form { display: flex; flex-direction: column; gap: 14px; }
+.step-indicator { display: flex; align-items: center; gap: 8px; margin-bottom: 20px; }
+.step { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-3); }
+.step.done .step-dot { background: var(--green-dark); }
+.step.active .step-dot { background: var(--green-dark); }
+.step.active { color: var(--text-1); font-weight: 500; }
+.step-dot { width: 20px; height: 20px; border-radius: 50%; background: var(--border-strong); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; color: white; flex-shrink: 0; }
+.step-line { width: 28px; height: 1px; background: var(--border); }
+
+/* ── Preview panel ── */
+.preview-panel { position: sticky; top: 20px; }
+.preview-panel .card { padding: 0; overflow: hidden; }
+.preview-header { padding: 12px 16px; border-bottom: 0.5px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+.preview-header h4 { font-size: 13px; font-weight: 600; color: var(--text-1); }
+.preview-image-wrap { background: var(--bg-subtle); aspect-ratio: 1; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; }
+.preview-image-wrap svg, .preview-image-wrap img { width: 100%; height: 100%; object-fit: contain; }
+.preview-image-placeholder { display: flex; flex-direction: column; align-items: center; gap: 8px; color: var(--text-3); }
+.preview-image-placeholder svg { width: 40px; height: 40px; opacity: .35; }
+.preview-caption-box { padding: 14px 16px; border-top: 0.5px solid var(--border); max-height: 200px; overflow-y: auto; }
+.preview-caption-box p { font-size: 13px; line-height: 1.7; color: var(--text-1); white-space: pre-wrap; }
+.preview-caption-placeholder { font-size: 13px; color: var(--text-3); font-style: italic; }
+.preview-actions { padding: 12px 16px; border-top: 0.5px solid var(--border); display: flex; gap: 8px; }
+
+/* ── Loading spinner ── */
+.spinner { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,.3); border-top-color: white; border-radius: 50%; animation: spin .6s linear infinite; flex-shrink: 0; }
+.spinner-dark { border-color: rgba(57,107,20,.2); border-top-color: var(--green-dark); }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Queue table ── */
+.queue-filters { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; align-items: center; }
+.filter-btn { padding: 5px 12px; border-radius: 99px; border: 0.5px solid var(--border-strong); font-size: 12px; font-weight: 500; cursor: pointer; background: var(--bg); color: var(--text-2); transition: all 100ms; }
+.filter-btn.active { background: var(--green-dark); color: white; border-color: transparent; }
+.queue-list { display: flex; flex-direction: column; gap: 10px; }
+.queue-card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--r-lg); padding: 16px; display: grid; grid-template-columns: auto 1fr auto; gap: 16px; align-items: start; transition: border-color 100ms; }
+.queue-card:hover { border-color: var(--border-strong); }
+.queue-thumb { width: 72px; height: 72px; border-radius: var(--r-md); overflow: hidden; background: var(--bg-muted); flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+.queue-thumb svg { width: 100%; height: 100%; }
+.queue-thumb-placeholder { font-size: 22px; color: var(--text-3); }
+.queue-info h4 { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+.queue-info .meta { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; flex-wrap: wrap; }
+.queue-caption { font-size: 12px; color: var(--text-2); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.queue-actions { display: flex; flex-direction: column; gap: 6px; align-items: flex-end; }
+
+/* ── Stats row ── */
+.stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
+.stat-card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--r-lg); padding: 16px; }
+.stat-label { font-size: 12px; color: var(--text-2); margin-bottom: 6px; }
+.stat-value { font-size: 26px; font-weight: 700; color: var(--text-1); line-height: 1; }
+.stat-sub { font-size: 11px; color: var(--text-3); margin-top: 4px; }
+
+/* ── Config page ── */
+.config-section { margin-bottom: 24px; }
+.config-section h3 { font-size: 14px; font-weight: 600; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 0.5px solid var(--border); }
+.page-input-row { display: flex; gap: 10px; align-items: flex-end; margin-bottom: 10px; }
+.page-input-row .form-field { flex: 1; }
+.page-card { background: var(--bg-subtle); border: 0.5px solid var(--border); border-radius: var(--r-md); padding: 12px; margin-bottom: 8px; display: flex; align-items: center; gap: 12px; }
+.page-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green-mid); flex-shrink: 0; }
+
+/* ── Log ── */
+.log-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.log-table th { text-align: left; font-weight: 500; font-size: 11px; color: var(--text-2); padding: 8px 12px; border-bottom: 0.5px solid var(--border-strong); text-transform: uppercase; letter-spacing: .04em; }
+.log-table td { padding: 10px 12px; border-bottom: 0.5px solid var(--border); vertical-align: middle; }
+.log-table tr:hover td { background: var(--bg-subtle); }
+
+/* ── Modal ── */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 100; display: none; align-items: center; justify-content: center; padding: 20px; }
+.modal-overlay.open { display: flex; }
+.modal { background: var(--bg); border-radius: var(--r-xl); padding: 24px; width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow-md); }
+.modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+.modal-header h3 { font-size: 16px; font-weight: 600; }
+.modal-close { background: none; border: none; cursor: pointer; color: var(--text-3); padding: 4px; border-radius: var(--r-sm); }
+.modal-close:hover { background: var(--bg-muted); color: var(--text-1); }
+.modal-footer { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; padding-top: 16px; border-top: 0.5px solid var(--border); }
+
+/* ── Image editor ── */
+.image-editor { display: grid; grid-template-columns: 1fr 280px; gap: 16px; }
+.image-canvas-wrap { background: var(--bg-subtle); border-radius: var(--r-md); aspect-ratio: 1; overflow: hidden; }
+.image-canvas-wrap svg { width: 100%; height: 100%; }
+.image-controls { display: flex; flex-direction: column; gap: 12px; }
+.color-picker-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.color-dot { width: 24px; height: 24px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: border 100ms; }
+.color-dot.active { border-color: var(--text-1); }
+
+/* ── Toast ── */
+.toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 200; display: flex; flex-direction: column; gap: 8px; }
+.toast { background: var(--bg-inv); color: white; padding: 10px 16px; border-radius: var(--r-md); font-size: 13px; animation: slideIn .2s ease; max-width: 320px; display: flex; align-items: center; gap: 8px; }
+.toast.success { background: var(--green-dark); }
+.toast.error { background: var(--red); }
+@keyframes slideIn { from { opacity:0; transform: translateY(8px); } to { opacity:1; transform: translateY(0); } }
+
+/* ── Empty state ── */
+.empty-state { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 48px; color: var(--text-3); text-align: center; }
+.empty-state svg { width: 48px; height: 48px; opacity: .3; }
+.empty-state h3 { font-size: 15px; font-weight: 600; color: var(--text-2); }
+
+/* ── Divider ── */
+.divider { height: 0.5px; background: var(--border); margin: 20px 0; }
+
+/* ── Tabs ── */
+.tabs { display: flex; gap: 2px; background: var(--bg-muted); border-radius: var(--r-md); padding: 3px; width: fit-content; margin-bottom: 16px; }
+.tab { padding: 5px 14px; border-radius: 6px; font-size: 12px; font-weight: 500; color: var(--text-2); cursor: pointer; transition: all 100ms; border: none; background: transparent; }
+.tab.active { background: var(--bg); color: var(--text-1); box-shadow: var(--shadow-sm); }
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 99px; }
+
+/* ── Responsive helpers ── */
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.items-center { align-items: center; }
+.gap-8 { gap: 8px; }
+.gap-12 { gap: 12px; }
+.gap-16 { gap: 16px; }
+.mt-4 { margin-top: 4px; }
+.mt-8 { margin-top: 8px; }
+.mt-16 { margin-top: 16px; }
+.ml-auto { margin-left: auto; }
+.text-sm { font-size: 12px; }
+.text-muted { color: var(--text-2); }
+.font-medium { font-weight: 500; }
+.font-semibold { font-weight: 600; }
+.w-full { width: 100%; }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- Topbar -->
+  <header class="topbar">
+    <div class="topbar-logo">
+      <div class="topbar-logo-mark"><span>YT</span></div>
+      <span class="topbar-brand">YTK <em>Post Studio</em></span>
+    </div>
+    <div class="topbar-spacer"></div>
+    <span class="topbar-badge" id="sheetsStatus">● Chưa kết nối Sheets</span>
+    <button class="btn btn-sm btn-ghost" onclick="showView('settings')">⚙ Cài đặt</button>
+  </header>
+
+  <!-- Sidebar -->
+  <nav class="sidebar">
+    <span class="nav-section">Tạo nội dung</span>
+    <button class="nav-item active" onclick="showView('compose')">
+      <svg class="icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 8h12M2 4h8M2 12h6"/></svg>
+      Tạo bài đăng
+    </button>
+
+    <span class="nav-section">Quản lý</span>
+    <button class="nav-item" onclick="showView('queue')">
+      <svg class="icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>
+      Hàng chờ <span id="queueCount" class="badge badge-amber" style="font-size:10px;padding:1px 6px;margin-left:auto;display:none">0</span>
+    </button>
+    <button class="nav-item" onclick="showView('log')">
+      <svg class="icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 3h10M3 7h10M3 11h6"/></svg>
+      Lịch sử
+    </button>
+
+    <div class="nav-sep"></div>
+    <span class="nav-section">Hệ thống</span>
+    <button class="nav-item" onclick="showView('schools')">
+      <svg class="icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 13V7L8 3l6 4v6"/><path d="M6 13V9h4v4"/></svg>
+      Dữ liệu trường
+    </button>
+    <button class="nav-item" onclick="showView('settings')">
+      <svg class="icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="2.5"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41"/></svg>
+      Cài đặt
+    </button>
+  </nav>
+
+  <!-- Main content -->
+  <main class="main">
+
+    <!-- ═══════════════ VIEW: COMPOSE ═══════════════ -->
+    <div id="view-compose" class="view active">
+      <h2 class="section-title">Tạo bài đăng</h2>
+      <p class="section-sub">Gõ lệnh → AI viết caption + thiết kế ảnh → review → lên lịch</p>
+
+      <div class="compose-grid">
+        <!-- Left: Form -->
+        <div class="compose-form">
+          <div class="card">
+            <div class="step-indicator">
+              <div class="step active">
+                <div class="step-dot">1</div>
+                <span>Chọn trường</span>
+              </div>
+              <div class="step-line"></div>
+              <div class="step" id="step2">
+                <div class="step-dot">2</div>
+                <span>Tạo nội dung</span>
+              </div>
+              <div class="step-line"></div>
+              <div class="step" id="step3">
+                <div class="step-dot">3</div>
+                <span>Lên lịch</span>
+              </div>
+            </div>
+
+            <div class="form-row cols-2">
+              <div>
+                <label>Tên trường *</label>
+                <input type="text" id="schoolName" placeholder="VD: Trường Đại Học Silla" list="schoolList" oninput="onSchoolInput()">
+                <datalist id="schoolList"></datalist>
+              </div>
+              <div>
+                <label>Loại visa *</label>
+                <select id="visaType" onchange="onVisaChange()">
+                  <option value="">-- Chọn visa --</option>
+                  <option value="D2-1">D2-1 — Cao đẳng</option>
+                  <option value="D2-2">D2-2 — Đại học 4 năm</option>
+                  <option value="D2-3">D2-3 — Thạc sĩ</option>
+                  <option value="D4-1">D4-1 — Học tiếng Hàn</option>
+                  <option value="Điều dưỡng">Điều dưỡng</option>
+                  <option value="E-7-M">E-7-M — Kỹ thuật + việc làm</option>
+                  <option value="Đại đô thị">Đại đô thị</option>
+                  <option value="E-VISA">E-VISA — Thạc sĩ online</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-row cols-2">
+              <div>
+                <label>Loại bài đăng *</label>
+                <select id="postType">
+                  <option value="tuyen_sinh">📋 Tuyển sinh tổng quan</option>
+                  <option value="hoc_bong">🎓 Tập trung học bổng</option>
+                  <option value="tips_chuan_bi">📝 Tips chuẩn bị hồ sơ</option>
+                  <option value="so_sanh">⚖️ So sánh / Tại sao nên chọn</option>
+                </select>
+              </div>
+              <div>
+                <label>Tone viết</label>
+                <select id="tone">
+                  <option value="professional">Chuyên nghiệp & Tin cậy</option>
+                  <option value="friendly">Thân thiện & Gần gũi</option>
+                  <option value="urgent">Khẩn cấp (deadline sắp đến)</option>
+                  <option value="inspiring">Truyền cảm hứng</option>
+                </select>
+              </div>
+            </div>
+
+            <div id="schoolDataPreview" style="display:none" class="card card-sm" style="background:var(--bg-subtle);margin-top:4px;margin-bottom:4px;">
+              <div class="flex items-center gap-8">
+                <span class="badge badge-green" id="previewRanking">Top 2</span>
+                <span class="badge badge-gray" id="previewCity">Busan</span>
+                <span class="badge badge-amber" id="previewDuration">2 năm</span>
+                <span class="text-sm text-muted" id="previewTopik">TOPIK 2</span>
+              </div>
+              <div class="flex items-center gap-8 mt-4">
+                <span class="text-sm text-muted">Học phí:</span>
+                <span class="text-sm font-medium" id="previewTuition">—</span>
+              </div>
+            </div>
+
+            <div class="form-row mt-8">
+              <div>
+                <label>Ghi chú đặc biệt (tùy chọn)</label>
+                <input type="text" id="notes" placeholder="VD: Nhấn mạnh deadline 30/04, đợt 1...">
+              </div>
+            </div>
+
+            <div class="flex gap-8 mt-8">
+              <button class="btn btn-primary btn-lg w-full" id="generateBtn" onclick="generateContent()">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="white" stroke-width="1.5"><path d="M8 1l1.5 4H14L10.5 8l1.5 4-4-2.5L4 12l1.5-4L2 5h4.5z"/></svg>
+                Tạo Caption + Ảnh với AI
+              </button>
+            </div>
+          </div>
+
+          <!-- Caption editor -->
+          <div class="card" id="captionCard" style="display:none">
+            <div class="flex items-center gap-8 mb-12">
+              <h4 class="font-semibold">✏️ Caption</h4>
+              <button class="btn btn-sm btn-ghost ml-auto" onclick="regenerateCaption()">↺ Tạo lại</button>
+              <button class="btn btn-sm btn-ghost" onclick="copyCaption()">⧉ Copy</button>
+            </div>
+            <textarea id="captionText" rows="12" placeholder="Caption sẽ xuất hiện ở đây..."></textarea>
+            <div class="flex items-center gap-8 mt-8">
+              <span class="text-sm text-muted" id="charCount">0 ký tự</span>
+              <span class="text-sm text-muted" id="wordCount">0 từ</span>
+            </div>
+          </div>
+
+          <!-- Schedule -->
+          <div class="card" id="scheduleCard" style="display:none">
+            <h4 class="font-semibold mb-12">⏰ Lên lịch đăng</h4>
+            <div class="form-row cols-2">
+              <div>
+                <label>Ngày & giờ đăng</label>
+                <input type="datetime-local" id="scheduleTime">
+              </div>
+              <div>
+                <label>Đăng lên Pages</label>
+                <div id="pageCheckboxes" style="display:flex;flex-direction:column;gap:6px;margin-top:6px;"></div>
+              </div>
+            </div>
+            <div class="flex gap-8 mt-12">
+              <button class="btn btn-primary w-full" onclick="addToQueue()">
+                + Thêm vào hàng chờ
+              </button>
+              <button class="btn btn-secondary" onclick="postNow()" id="postNowBtn">
+                ⚡ Đăng ngay
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Preview panel -->
+        <div class="preview-panel">
+          <div class="card" style="padding:0;overflow:hidden;">
+            <div class="preview-header">
+              <h4>Xem trước bài đăng</h4>
+              <button class="btn btn-sm btn-ghost" onclick="openImageEditor()" id="editImageBtn" style="display:none">✏️ Chỉnh ảnh</button>
+            </div>
+
+            <!-- Image preview -->
+            <div class="preview-image-wrap" id="imagePreviewWrap">
+              <div class="preview-image-placeholder">
+                <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <rect x="4" y="4" width="40" height="40" rx="6"/>
+                  <circle cx="18" cy="18" r="4"/>
+                  <path d="M4 32l10-10 8 8 6-6 16 16"/>
+                </svg>
+                <span style="font-size:13px">Ảnh sẽ xuất hiện ở đây</span>
+              </div>
+            </div>
+
+            <!-- Caption preview -->
+            <div class="preview-caption-box">
+              <p id="captionPreview" class="preview-caption-placeholder">Caption sẽ hiển thị ở đây sau khi tạo...</p>
+            </div>
+
+            <div class="preview-actions">
+              <button class="btn btn-sm btn-secondary w-full" onclick="downloadImage()" id="downloadBtn" style="display:none">⬇ Tải ảnh SVG</button>
+            </div>
+          </div>
+
+          <!-- Quick slots -->
+          <div style="margin-top:12px;">
+            <p class="text-sm text-muted mb-8" style="padding:0 2px;">⚡ Giờ vàng đăng bài</p>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;">
+              <button class="btn btn-sm btn-secondary" onclick="setQuickTime(8,0)">8:00 Sáng</button>
+              <button class="btn btn-sm btn-secondary" onclick="setQuickTime(11,30)">11:30 Trưa</button>
+              <button class="btn btn-sm btn-secondary" onclick="setQuickTime(20,0)">20:00 Tối</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════ VIEW: QUEUE ═══════════════ -->
+    <div id="view-queue" class="view">
+      <div class="flex items-center gap-12 mb-16">
+        <div>
+          <h2 class="section-title">Hàng chờ đăng bài</h2>
+          <p class="section-sub" style="margin:0">Review và duyệt bài trước khi lên sóng</p>
+        </div>
+        <button class="btn btn-primary ml-auto" onclick="runScheduler()">▶ Chạy scheduler ngay</button>
+      </div>
+
+      <div class="queue-filters">
+        <button class="filter-btn active" onclick="filterQueue('all', this)">Tất cả</button>
+        <button class="filter-btn" onclick="filterQueue('PENDING_REVIEW', this)">Chờ duyệt</button>
+        <button class="filter-btn" onclick="filterQueue('APPROVED', this)">Đã duyệt</button>
+        <button class="filter-btn" onclick="filterQueue('POSTED', this)">Đã đăng</button>
+        <button class="filter-btn" onclick="filterQueue('ERROR', this)">Lỗi</button>
+        <button class="btn btn-sm btn-secondary ml-auto" onclick="loadQueue()">↺ Làm mới</button>
+      </div>
+
+      <div id="queueList" class="queue-list">
+        <div class="empty-state">
+          <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="8" y="8" width="32" height="32" rx="4"/><path d="M16 24h16M16 32h10"/></svg>
+          <h3>Chưa có bài trong hàng chờ</h3>
+          <p class="text-sm">Tạo bài đăng đầu tiên ở tab "Tạo bài đăng"</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════ VIEW: LOG ═══════════════ -->
+    <div id="view-log" class="view">
+      <div class="flex items-center gap-12 mb-20">
+        <div>
+          <h2 class="section-title">Lịch sử đăng bài</h2>
+          <p class="section-sub" style="margin:0">Theo dõi toàn bộ bài đã được đăng tự động</p>
+        </div>
+        <button class="btn btn-secondary ml-auto" onclick="loadLog()">↺ Làm mới</button>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-label">Tổng bài đã đăng</div><div class="stat-value" id="stat-total">—</div><div class="stat-sub">Tất cả thời gian</div></div>
+        <div class="stat-card"><div class="stat-label">Tuần này</div><div class="stat-value" id="stat-week">—</div><div class="stat-sub">7 ngày qua</div></div>
+        <div class="stat-card"><div class="stat-label">Hôm nay</div><div class="stat-value" id="stat-today">—</div><div class="stat-sub">Đã đăng</div></div>
+        <div class="stat-card"><div class="stat-label">Tỷ lệ thành công</div><div class="stat-value" id="stat-rate">—</div><div class="stat-sub">Pages thành công</div></div>
+      </div>
+
+      <div class="card" style="padding:0;overflow:hidden;">
+        <table class="log-table">
+          <thead>
+            <tr>
+              <th>Thời gian</th>
+              <th>Trường</th>
+              <th>Visa</th>
+              <th>Loại bài</th>
+              <th>Pages OK</th>
+              <th>Kết quả</th>
+            </tr>
+          </thead>
+          <tbody id="logTableBody">
+            <tr><td colspan="6" style="text-align:center;padding:32px;color:var(--text-3);">Đang tải...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ═══════════════ VIEW: SCHOOLS ═══════════════ -->
+    <div id="view-schools" class="view">
+      <div class="flex items-center gap-12 mb-20">
+        <div>
+          <h2 class="section-title">Dữ liệu trường</h2>
+          <p class="section-sub" style="margin:0">Quản lý thông tin tuyển sinh từ file PDF</p>
+        </div>
+        <div class="ml-auto flex gap-8">
+          <input type="text" id="schoolSearch" placeholder="Tìm kiếm trường..." style="width:220px" oninput="filterSchools()">
+          <select id="visaFilter" style="width:140px" onchange="filterSchools()">
+            <option value="">Tất cả visa</option>
+            <option value="D2-1">D2-1</option>
+            <option value="D2-2">D2-2</option>
+            <option value="D4-1">D4-1</option>
+            <option value="Điều dưỡng">Điều dưỡng</option>
+            <option value="E-7-M">E-7-M</option>
+          </select>
+        </div>
+      </div>
+      <div id="schoolsGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;"></div>
+    </div>
+
+    <!-- ═══════════════ VIEW: SETTINGS ═══════════════ -->
+    <div id="view-settings" class="view">
+      <h2 class="section-title">Cài đặt</h2>
+      <p class="section-sub">Kết nối API và cấu hình hệ thống</p>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start;">
+        <div>
+          <div class="card config-section" style="margin-bottom:0">
+            <h3>🔑 API Keys</h3>
+            <div class="form-row">
+              <div>
+                <label>Gemini API Key</label>
+                <input type="password" id="cfg-claude-key" placeholder="AIzaSy...">
+                <span class="text-sm text-muted mt-4" style="display:block">Lấy tại: <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--green-dark)">aistudio.google.com</a> — Miễn phí hoàn toàn</span>
+              </div>
+            </div>
+            <div class="form-row">
+              <div>
+                <label>Google Sheets ID</label>
+                <input type="text" id="cfg-sheet-id" placeholder="1BxiMVs0XRA...">
+                <span class="text-sm text-muted mt-4" style="display:block">Lấy từ URL: docs.google.com/spreadsheets/d/<strong>ID</strong>/edit</span>
+              </div>
+            </div>
+            <div class="form-row">
+              <div>
+                <label>Apps Script Web App URL</label>
+                <input type="text" id="cfg-apps-script-url" placeholder="https://script.google.com/macros/s/...">
+                <span class="text-sm text-muted mt-4" style="display:block">Deploy Apps Script → Web App → Copy URL</span>
+              </div>
+            </div>
+            <button class="btn btn-primary mt-8" onclick="saveConfig()">💾 Lưu cài đặt</button>
+            <button class="btn btn-secondary mt-8" style="margin-left:8px" onclick="testConnection()">🔌 Test kết nối</button>
+          </div>
+        </div>
+
+        <div>
+          <div class="card config-section" style="margin-bottom:0">
+            <h3>📱 Facebook Pages</h3>
+            <div id="pagesList"></div>
+            <button class="btn btn-secondary mt-8" onclick="addPageModal()">+ Thêm Page</button>
+          </div>
+
+          <div class="card mt-16">
+            <h3 style="font-size:14px;font-weight:600;margin-bottom:12px;padding-bottom:8px;border-bottom:0.5px solid var(--border);">⏱️ Scheduler</h3>
+            <p class="text-sm text-muted mb-12">Scheduler tự động chạy qua Apps Script (time-based trigger). Thiết lập trong Google Apps Script → Triggers.</p>
+            <button class="btn btn-secondary w-full" onclick="triggerScheduler()">▶ Chạy thủ công ngay</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- Modal: Image Editor -->
+<div class="modal-overlay" id="imageEditorModal">
+  <div class="modal" style="max-width:760px;">
+    <div class="modal-header">
+      <h3>🎨 Chỉnh sửa ảnh</h3>
+      <button class="modal-close" onclick="closeModal('imageEditorModal')">✕</button>
+    </div>
+    <div class="image-editor">
+      <div class="image-canvas-wrap" id="modalImageCanvas"></div>
+      <div class="image-controls">
+        <div>
+          <label>Màu chủ đạo</label>
+          <div class="color-picker-row">
+            <div class="color-dot active" style="background:#396B14" onclick="changeImageColor('#396B14','#448650',this)" title="YTK Green"></div>
+            <div class="color-dot" style="background:#185FA5" onclick="changeImageColor('#185FA5','#378ADD',this)" title="Blue"></div>
+            <div class="color-dot" style="background:#854F0B" onclick="changeImageColor('#854F0B','#BA7517',this)" title="Amber"></div>
+            <div class="color-dot" style="background:#CC3333" onclick="changeImageColor('#CC3333','#E04444',this)" title="Red"></div>
+            <div class="color-dot" style="background:#444441" onclick="changeImageColor('#444441','#5F5E5A',this)" title="Dark"></div>
+            <div class="color-dot" style="background:#0F6E56" onclick="changeImageColor('#0F6E56','#1D9E75',this)" title="Teal"></div>
+          </div>
+        </div>
+        <div>
+          <label>Tên trường</label>
+          <input type="text" id="img-school-name" oninput="updateImageField('name')" placeholder="Tên trường">
+        </div>
+        <div>
+          <label>Thành phố</label>
+          <input type="text" id="img-city" oninput="updateImageField('city')" placeholder="Busan">
+        </div>
+        <div>
+          <label>Học phí / Invoice</label>
+          <input type="text" id="img-tuition" oninput="updateImageField('tuition')" placeholder="5,200,000 won/năm">
+        </div>
+        <div>
+          <label>Học bổng nổi bật</label>
+          <input type="text" id="img-scholarship" oninput="updateImageField('scholarship')" placeholder="TOPIK 3: -50%">
+        </div>
+        <div>
+          <label>Tag line / Highlights</label>
+          <input type="text" id="img-highlight" oninput="updateImageField('highlight')" placeholder="Top 1 | Không sổ đóng băng">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('imageEditorModal')">Hủy</button>
+      <button class="btn btn-secondary" onclick="downloadImageFromModal()">⬇ Tải SVG</button>
+      <button class="btn btn-primary" onclick="applyImageEdit()">✓ Áp dụng</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Add Page -->
+<div class="modal-overlay" id="addPageModal">
+  <div class="modal" style="max-width:460px;">
+    <div class="modal-header">
+      <h3>Thêm Facebook Page</h3>
+      <button class="modal-close" onclick="closeModal('addPageModal')">✕</button>
+    </div>
+    <div class="form-row">
+      <div><label>Tên Page</label><input type="text" id="new-page-name" placeholder="VD: YTK Global"></div>
+    </div>
+    <div class="form-row">
+      <div><label>Page ID</label><input type="text" id="new-page-id" placeholder="123456789012345"></div>
+    </div>
+    <div class="form-row">
+      <div><label>Access Token</label><input type="password" id="new-page-token" placeholder="EAABxxxx..."></div>
+    </div>
+    <p class="text-sm text-muted mt-8">
+      Lấy token tại: <a href="https://developers.facebook.com/tools/explorer" target="_blank" style="color:var(--green-dark)">Graph API Explorer</a>
+    </p>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('addPageModal')">Hủy</button>
+      <button class="btn btn-primary" onclick="savePage()">Thêm Page</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+// ============================================================
+// STATE
+// ============================================================
+const STATE = {
+  config: {
+    claudeKey: '',
+    sheetId: '',
+    appsScriptUrl: '',
+    pages: []
+  },
+  schools: [],
+  queue: [],
+  log: [],
+  currentSchool: null,
+  currentCaption: '',
+  currentImageSvg: '',
+  imageColors: { primary: '#396B14', secondary: '#448650' }
+};
+
+// Load from localStorage
+function loadState() {
+  try {
+    const saved = localStorage.getItem('ytk_config');
+    if (saved) STATE.config = { ...STATE.config, ...JSON.parse(saved) };
+    const schools = localStorage.getItem('ytk_schools');
+    if (schools) STATE.schools = JSON.parse(schools);
+    const queue = localStorage.getItem('ytk_queue');
+    if (queue) STATE.queue = JSON.parse(queue);
+    const log = localStorage.getItem('ytk_log');
+    if (log) STATE.log = JSON.parse(log);
+  } catch(e) {}
+  updateUI();
+}
+
+function saveState() {
+  localStorage.setItem('ytk_config', JSON.stringify(STATE.config));
+  localStorage.setItem('ytk_schools', JSON.stringify(STATE.schools));
+  localStorage.setItem('ytk_queue', JSON.stringify(STATE.queue));
+  localStorage.setItem('ytk_log', JSON.stringify(STATE.log));
+}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+function showView(id) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById(`view-${id}`).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => {
+    if (n.getAttribute('onclick')?.includes(`'${id}'`)) n.classList.add('active');
+  });
+  if (id === 'queue') renderQueue();
+  if (id === 'log') renderLog();
+  if (id === 'schools') renderSchools();
+  if (id === 'settings') renderSettings();
+}
+
+// ============================================================
+// SCHOOL AUTOCOMPLETE
+// ============================================================
+function onSchoolInput() {
+  const q = document.getElementById('schoolName').value.toLowerCase();
+  const visa = document.getElementById('visaType').value;
+  const matches = STATE.schools.filter(s =>
+    s.name_vn.toLowerCase().includes(q) && (!visa || s.visa_type === visa)
+  ).slice(0, 10);
+
+  const dl = document.getElementById('schoolList');
+  dl.innerHTML = matches.map(s => `<option value="${s.name_vn}" data-id="${s.id}">${s.name_vn} (${s.visa_type})</option>`).join('');
+  tryLoadSchoolPreview();
+}
+
+function onVisaChange() {
+  onSchoolInput();
+  updatePageCheckboxes();
+}
+
+function tryLoadSchoolPreview() {
+  const name = document.getElementById('schoolName').value;
+  const visa = document.getElementById('visaType').value;
+  const school = STATE.schools.find(s =>
+    s.name_vn.toLowerCase() === name.toLowerCase() &&
+    (!visa || s.visa_type === visa)
+  );
+  if (school) {
+    STATE.currentSchool = school;
+    document.getElementById('schoolDataPreview').style.display = 'block';
+    document.getElementById('previewRanking').textContent = school.ranking || 'Top 2';
+    document.getElementById('previewCity').textContent = school.city || '—';
+    document.getElementById('previewDuration').textContent = school.duration || '—';
+    document.getElementById('previewTopik').textContent = 'TOPIK: ' + (school.topik_required || '—');
+    document.getElementById('previewTuition').textContent = school.tuition_note || school.invoice_total || '—';
+  } else {
+    document.getElementById('schoolDataPreview').style.display = 'none';
+  }
+}
+
+// ============================================================
+// GENERATE CONTENT (gọi Apps Script hoặc Claude trực tiếp)
+// ============================================================
+async function generateContent() {
+  const schoolName = document.getElementById('schoolName').value.trim();
+  const visaType = document.getElementById('visaType').value;
+  const postType = document.getElementById('postType').value;
+  const tone = document.getElementById('tone').value;
+  const notes = document.getElementById('notes').value.trim();
+
+  if (!schoolName) { toast('Chưa nhập tên trường!', 'error'); return; }
+  if (!visaType)   { toast('Chưa chọn loại visa!', 'error'); return; }
+
+  const btn = document.getElementById('generateBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner"></div> Đang tạo nội dung...';
+
+  try {
+    const school = STATE.currentSchool || { name_vn: schoolName, visa_type: visaType };
+
+    // 1. Generate caption
+    toast('🤖 AI đang viết caption...', 'info');
+    const caption = await callClaudeForCaption(school, postType, tone, notes);
+    STATE.currentCaption = caption;
+
+    // 2. Generate image SVG
+    toast('🎨 Đang tạo ảnh thiết kế...', 'info');
+    const svg = buildImageSVG(school, visaType);
+    STATE.currentImageSvg = svg;
+
+    // Show results
+    showCaptionEditor(caption);
+    showImagePreview(svg);
+    showSchedulePanel();
+    markStep(2);
+
+    toast('✅ Đã tạo xong! Hãy review trước khi đăng.', 'success');
+
+  } catch(e) {
+    toast('Lỗi: ' + e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="white" stroke-width="1.5"><path d="M8 1l1.5 4H14L10.5 8l1.5 4-4-2.5L4 12l1.5-4L2 5h4.5z"/></svg> Tạo Caption + Ảnh với AI';
+  }
+}
+
+async function callClaudeForCaption(school, postType, tone, notes) {
+  // Ưu tiên: relay qua Apps Script (nếu đã cài)
+  if (STATE.config.appsScriptUrl) {
+    const resp = await fetch(STATE.config.appsScriptUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'generateCaption', school, postType, tone, notes })
+    });
+    if (!resp.ok) throw new Error('Apps Script error: ' + resp.status);
+    const data = await resp.json();
+    return data.caption;
+  }
+
+  // Fallback: Gọi Gemini API trực tiếp từ browser
+  if (!STATE.config.claudeKey) throw new Error('Chưa cài Gemini API Key trong Cài đặt!');
+
+  const prompt = buildPromptJS(school, postType, tone, notes);
+  const model = 'gemini-2.0-flash';
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${STATE.config.claudeKey}`;
+
+  const resp = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      contents: [{ parts: [{ text: prompt }] }],
+      generationConfig: { maxOutputTokens: 1500, temperature: 0.85 }
+    })
+  });
+
+  if (!resp.ok) {
+    const err = await resp.json();
+    throw new Error(err.error?.message || 'Gemini API error ' + resp.status);
+  }
+  const data = await resp.json();
+  const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+  if (!text) throw new Error('Gemini không trả về nội dung. Thử lại.');
+  return text.trim();
+}
+
+function buildPromptJS(school, postType, tone, notes) {
+  const visaType = school.visa_type || '';
+  const isD4 = visaType.includes('D4');
+  const isNurse = visaType.includes('Điều dưỡng');
+  const isE7M = visaType.includes('E-7-M');
+
+  const visaCtx = isD4 ? 'Học tiếng Hàn D4-1. Nhấn: bước đệm lên D2, môi trường học, chi phí.' :
+    isNurse ? 'Điều dưỡng. Nhấn: nghề hot, visa E7, thu nhập ổn định.' :
+    isE7M ? 'E-7-M. Nhấn: làm thêm 35h/tuần, Nhà nước bảo đảm việc làm.' :
+    'Du học chính quy. Nhấn: bằng cấp quốc tế, học bổng, định cư.';
+
+  const toneCtx = { professional:'chuyên nghiệp và đáng tin', friendly:'thân thiện gần gũi như người bạn',
+    urgent:'khẩn cấp (deadline sắp đến!)', inspiring:'truyền cảm hứng, động lực' }[tone] || 'chuyên nghiệp';
+
+  const postCtxMap = {
+    tuyen_sinh: `Bài tuyển sinh tổng quan. Hook ấn tượng. Điều kiện, học phí, học bổng, USP.`,
+    hoc_bong: `Tập trung học bổng. Hook = con số % hoặc won tiết kiệm. Breakdown từng mức TOPIK.`,
+    tips_chuan_bi: `Tips chuẩn bị hồ sơ dạng checklist. Tiêu đề "X điều cần biết khi nộp hồ sơ vào [tên trường]".`,
+    so_sanh: `So sánh tại sao nên chọn trường này. ROI sau tốt nghiệp. Phù hợp đối tượng nào.`
+  };
+
+  return `Bạn là content marketer cho YTK Global (ytkorea.edu.vn) - công ty tư vấn du học Hàn Quốc.
+${visaCtx}
+Tone: ${toneCtx}.
+${postCtxMap[postType] || postCtxMap.tuyen_sinh}
+${notes ? 'Lưu ý thêm: ' + notes : ''}
+
+DỮ LIỆU TRƯỜNG:
+${JSON.stringify(school, null, 2)}
+
+YÊU CẦU:
+- 280-380 từ, tiếng Việt, emoji phù hợp
+- KHÔNG bắt đầu bằng "Thông báo" hay "Xin chào"
+- CTA cuối: inbox để tư vấn miễn phí
+- Hashtag 10-15 tag: #DuHocHan #YTKGlobal và tag liên quan
+
+Chỉ trả về nội dung bài đăng.`;
+}
+
+// ============================================================
+// IMAGE BUILDER — SVG 1080x1080
+// ============================================================
+function buildImageSVG(school, visaType, colors) {
+  const c1 = (colors || STATE.imageColors).primary;
+  const c2 = (colors || STATE.imageColors).secondary;
+
+  const visaColorMap = {
+    'D2-1':'#396B14','D2-2':'#448650','D2-3':'#2E5610',
+    'D4-1':'#0F6E56','Điều dưỡng':'#CC3333','E-7-M':'#854F0B',
+    'Đại đô thị':'#185FA5','E-VISA':'#534AB7'
+  };
+  const vc = visaColorMap[visaType] || c1;
+  const xe = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+  const name     = xe((school.name_vn || school.name || '').substring(0, 38));
+  const nameKr   = xe(school.name_kr || '');
+  const city     = xe(school.city || '');
+  const ranking  = xe(school.ranking || 'Top 2');
+  const duration = xe(school.duration || '');
+  const topik    = xe(school.topik_required || 'Liên hệ YTK');
+  const tuition  = xe(school.tuition_note || school.invoice_total || '');
+  const schol    = xe(school.scholarship_entry || school.scholarship || '');
+  const majors   = xe((Array.isArray(school.majors) ? school.majors.slice(0,5).join(' · ') : school.majors || '').substring(0,70));
+  const hl1      = xe((Array.isArray(school.highlights) ? school.highlights[0] : '').substring(0,50));
+  const hl2      = xe((Array.isArray(school.highlights) ? school.highlights[1] : '').substring(0,50));
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1080" width="1080" height="1080">
+<defs>
+  <linearGradient id="hg" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="${c1}"/><stop offset="100%" stop-color="${c2}"/></linearGradient>
+  <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#F6F9F3"/><stop offset="100%" stop-color="#FFFFFF"/></linearGradient>
+  <clipPath id="hclip"><rect width="1080" height="220"/></clipPath>
+</defs>
+<rect width="1080" height="1080" fill="url(#bg)"/>
+<rect width="1080" height="8" fill="url(#hg)"/>
+<rect y="8" width="1080" height="212" fill="url(#hg)" clip-path="url(#hclip)"/>
+<!-- Decorative circles -->
+<circle cx="960" cy="60" r="120" fill="rgba(255,255,255,0.06)"/>
+<circle cx="1020" cy="180" r="80" fill="rgba(255,255,255,0.05)"/>
+<!-- Logo -->
+<rect x="40" y="32" width="52" height="52" rx="8" fill="rgba(255,255,255,0.18)"/>
+<text x="66" y="66" text-anchor="middle" font-family="'Be Vietnam Pro',sans-serif" font-size="16" font-weight="700" fill="white">YTK</text>
+<!-- Visa badge -->
+<rect x="${1040-visaType.length*10-24}" y="32" width="${visaType.length*10+48}" height="36" rx="18" fill="${vc}" opacity="0.9"/>
+<text x="${1040-visaType.length*5}" y="55" text-anchor="middle" font-family="'Be Vietnam Pro',sans-serif" font-size="15" font-weight="700" fill="white">${xe(visaType)}</text>
+<!-- School name -->
+<text x="540" y="118" text-anchor="middle" font-family="'Be Vietnam Pro',sans-serif" font-size="${name.length > 30 ? 32 : 38}" font-weight="700" fill="white">${name}</text>
+${nameKr ? `<text x="540" y="158" text-anchor="middle" font-family="'Be Vietnam Pro',sans-serif" font-size="20" fill="rgba(255,255,255,0.78)">${nameKr}</text>` : ''}
+<text x="540" y="${nameKr ? 196 : 168}" text-anchor="middle" font-family="'Be Vietnam Pro',sans-serif" font-size="14" fill="rgba(255,255,255,0.6)">ytkorea.edu.vn</text>
+<!-- Info pills row -->
+<rect x="40" y="240" width="300" height="72" rx="10" fill="white" stroke="#EBF3E4" stroke-width="1"/>
+<text x="190" y="266" text-anchor="middle" font-family="'Be Vietnam Pro',sans-serif" font-size="11" fill="#9AAA8A">📍 THÀNH PHỐ</text>
+<text x="190" y="295" text-anchor="middle" font-family="'Be Vietnam Pro',sans-serif" font-size="20" font-weight="600" fill="${c1}">${city}</text>
+<rect x="390" y="240" width="300" height="72" rx="10" fill="white" stroke="#EBF3E4" stroke-width="1"/>
+<text x="540" y="266" text-anchor="middle" font-family="'Be Vietnam Pro',sans-serif" font-size="11" fill="#9AAA8A">🏆 XẾP HẠNG</text>
+<text x="540" y="295" text-anchor="middle" font-family="'Be Vietnam Pro',sans-serif" font-size="20" font-weight="600" fill="${c1}">${ranking}</text>
+<rect x="740" y="240" width="300" height="72" rx="10" fill="white" stroke="#EBF3E4" stroke-width="1"/>
+<text x="890" y="266" text-anchor="middle" font-family="'Be Vietnam Pro',sans-serif" font-size="11" fill="#9AAA8A">⏱ ĐÀO TẠO</text>
+<text x="890" y="295" text-anchor="middle" font-family="'Be Vietnam Pro',sans-serif" font-size="20" font-weight="600" fill="${c1}">${duration}</text>
+<!-- Divider -->
+<line x1="40" y1="336" x2="1040" y2="336" stroke="#EBF3E4" stroke-width="1.5"/>
+<!-- TOPIK -->
+<text x="40" y="368" font-family="'Be Vietnam Pro',sans-serif" font-size="12" font-weight="600" fill="#9AAA8A">📝 YÊU CẦU TOPIK</text>
+<rect x="40" y="378" width="1000" height="48" rx="8" fill="#EBF3E4"/>
+<text x="540" y="408" text-anchor="middle" font-family="'Be Vietnam Pro',sans-serif" font-size="18" font-weight="500" fill="${c1}">${topik}</text>
+<!-- Tuition -->
+<text x="40" y="454" font-family="'Be Vietnam Pro',sans-serif" font-size="12" font-weight="600" fill="#9AAA8A">💰 HỌC PHÍ / INVOICE</text>
+<rect x="40" y="464" width="1000" height="56" rx="8" fill="#FEF7E6"/>
+<text x="540" y="498" text-anchor="middle" font-family="'Be Vietnam Pro',sans-serif" font-size="17" font-weight="500" fill="#A0720A">${tuition.substring(0,65)}</text>
+<!-- Scholarship -->
+<text x="40" y="546" font-family="'Be Vietnam Pro',sans-serif" font-size="12" font-weight="600" fill="#9AAA8A">🎓 HỌC BỔNG KỲ ĐẦU</text>
+<rect x="40" y="556" width="1000" height="56" rx="8" fill="#EDF5EC"/>
+<text x="540" y="590" text-anchor="middle" font-family="'Be Vietnam Pro',sans-serif" font-size="17" font-weight="500" fill="${c1}">${schol.substring(0,65)}</text>
+<!-- Majors -->
+<text x="40" y="638" font-family="'Be Vietnam Pro',sans-serif" font-size="12" font-weight="600" fill="#9AAA8A">📚 NGÀNH HỌC</text>
+<rect x="40" y="648" width="1000" height="56" rx="8" fill="#F6F9F3" stroke="#EBF3E4" stroke-width="1"/>
+<text x="540" y="682" text-anchor="middle" font-family="'Be Vietnam Pro',sans-serif" font-size="16" fill="#396B14">${majors.substring(0,68)}</text>
+<!-- Highlights -->
+<rect x="40" y="730" width="488" height="64" rx="10" fill="${c1}"/>
+<text x="284" y="756" text-anchor="middle" font-family="'Be Vietnam Pro',sans-serif" font-size="13" font-weight="600" fill="rgba(255,255,255,0.7)">✨ NỔI BẬT</text>
+<text x="284" y="780" text-anchor="middle" font-family="'Be Vietnam Pro',sans-serif" font-size="15" font-weight="600" fill="white">${hl1.substring(0,35)}</text>
+<rect x="552" y="730" width="488" height="64" rx="10" fill="${c2}"/>
+<text x="796" y="756" text-anchor="middle" font-family="'Be Vietnam Pro',sans-serif" font-size="13" font-weight="600" fill="rgba(255,255,255,0.7)">⭐ ĐẶC BIỆT</text>
+<text x="796" y="780" text-anchor="middle" font-family="'Be Vietnam Pro',sans-serif" font-size="15" font-weight="600" fill="white">${hl2.substring(0,35)}</text>
+<!-- CTA Banner -->
+<rect x="40" y="828" width="1000" height="80" rx="12" fill="url(#hg)"/>
+<text x="540" y="860" text-anchor="middle" font-family="'Be Vietnam Pro',sans-serif" font-size="20" font-weight="700" fill="white">💬 Inbox để được tư vấn MIỄN PHÍ</text>
+<text x="540" y="890" text-anchor="middle" font-family="'Be Vietnam Pro',sans-serif" font-size="15" fill="rgba(255,255,255,0.85)">YTK GLOBAL | ytkorea.edu.vn | 🇰🇷 Du Học Hàn Quốc</text>
+<!-- Bottom accent -->
+<rect x="0" y="1072" width="1080" height="8" fill="url(#hg)"/>
+<!-- Watermark -->
+<text x="540" y="1062" text-anchor="middle" font-family="'Be Vietnam Pro',sans-serif" font-size="13" fill="#9AAA8A">YTK Global © 2026 — "Never Give Up On Your Dreams"</text>
+</svg>`;
+}
+
+// ============================================================
+// UI HELPERS
+// ============================================================
+function showCaptionEditor(caption) {
+  const card = document.getElementById('captionCard');
+  card.style.display = 'block';
+  document.getElementById('captionText').value = caption;
+  updateCharCount();
+  document.getElementById('captionText').addEventListener('input', () => {
+    STATE.currentCaption = document.getElementById('captionText').value;
+    document.getElementById('captionPreview').textContent = STATE.currentCaption;
+    updateCharCount();
+  });
+}
+
+function showImagePreview(svg) {
+  const wrap = document.getElementById('imagePreviewWrap');
+  wrap.innerHTML = svg;
+  document.getElementById('editImageBtn').style.display = '';
+  document.getElementById('downloadBtn').style.display = '';
+}
+
+function showSchedulePanel() {
+  const card = document.getElementById('scheduleCard');
+  card.style.display = 'block';
+  // Set default time = tomorrow 8:00
+  const d = new Date(); d.setDate(d.getDate()+1); d.setHours(8,0,0,0);
+  document.getElementById('scheduleTime').value = d.toISOString().slice(0,16);
+  updatePageCheckboxes();
+  markStep(3);
+}
+
+function updateCharCount() {
+  const t = document.getElementById('captionText').value;
+  document.getElementById('captionPreview').textContent = t;
+  document.getElementById('charCount').textContent = t.length + ' ký tự';
+  document.getElementById('wordCount').textContent = t.split(/\s+/).filter(Boolean).length + ' từ';
+}
+
+function updatePageCheckboxes() {
+  const container = document.getElementById('pageCheckboxes');
+  if (!STATE.config.pages.length) {
+    container.innerHTML = '<span class="text-sm text-muted">Chưa có page nào. Thêm trong Cài đặt.</span>';
+    return;
+  }
+  container.innerHTML = STATE.config.pages.map(p => `
+    <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer">
+      <input type="checkbox" checked value="${p.page_id}" style="width:auto;margin:0">
+      <span class="page-dot"></span> ${p.name}
+    </label>`).join('');
+}
+
+function markStep(n) {
+  for (let i = 1; i <= 3; i++) {
+    const el = i === 1 ? document.querySelector('.step') : document.getElementById(`step${i}`);
+    if (!el) continue;
+    el.classList.toggle('active', i === n);
+    el.classList.toggle('done', i < n);
+    if (i < n) el.querySelector('.step-dot').textContent = '✓';
+  }
+}
+
+function setQuickTime(h, m) {
+  const d = new Date(); d.setHours(h, m, 0, 0);
+  if (d < new Date()) d.setDate(d.getDate()+1);
+  document.getElementById('scheduleTime').value = d.toISOString().slice(0,16);
+}
+
+function copyCaption() {
+  navigator.clipboard.writeText(STATE.currentCaption).then(() => toast('Đã copy caption!', 'success'));
+}
+
+async function regenerateCaption() {
+  const school = STATE.currentSchool || { name_vn: document.getElementById('schoolName').value };
+  const postType = document.getElementById('postType').value;
+  const tone = document.getElementById('tone').value;
+  const notes = document.getElementById('notes').value;
+  try {
+    toast('🔄 Đang tạo lại...', 'info');
+    const cap = await callClaudeForCaption(school, postType, tone, notes);
+    document.getElementById('captionText').value = cap;
+    STATE.currentCaption = cap;
+    document.getElementById('captionPreview').textContent = cap;
+    updateCharCount();
+    toast('✅ Caption mới đã sẵn sàng!', 'success');
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+// ============================================================
+// QUEUE MANAGEMENT
+// ============================================================
+function addToQueue() {
+  const school = STATE.currentSchool || { name_vn: document.getElementById('schoolName').value };
+  const entry = {
+    id: Date.now().toString(),
+    status: 'PENDING_REVIEW',
+    school_name: school.name_vn || document.getElementById('schoolName').value,
+    visa_type: document.getElementById('visaType').value,
+    post_type: document.getElementById('postType').value,
+    schedule_time: document.getElementById('scheduleTime').value,
+    caption: document.getElementById('captionText')?.value || STATE.currentCaption,
+    image_svg: STATE.currentImageSvg,
+    pages: Array.from(document.querySelectorAll('#pageCheckboxes input:checked')).map(c => c.value),
+    created_at: new Date().toISOString(),
+    notes: document.getElementById('notes').value
+  };
+  STATE.queue.unshift(entry);
+  saveState();
+  updateQueueCount();
+  toast('✅ Đã thêm vào hàng chờ!', 'success');
+  setTimeout(() => showView('queue'), 800);
+}
+
+async function postNow() {
+  const caption = document.getElementById('captionText')?.value || STATE.currentCaption;
+  const pages = Array.from(document.querySelectorAll('#pageCheckboxes input:checked')).map(c => c.value);
+  if (!pages.length) { toast('Chưa chọn page nào!', 'error'); return; }
+
+  document.getElementById('postNowBtn').disabled = true;
+  try {
+    await postToFacebook(caption, STATE.currentImageSvg, pages);
+    logEntry(document.getElementById('schoolName').value, document.getElementById('visaType').value, caption, pages);
+    toast('🚀 Đã đăng thành công!', 'success');
+  } catch(e) {
+    toast('Lỗi đăng: ' + e.message, 'error');
+  } finally { document.getElementById('postNowBtn').disabled = false; }
+}
+
+async function approveAndSchedule(id) {
+  const item = STATE.queue.find(q => q.id === id);
+  if (!item) return;
+  item.status = 'APPROVED';
+  saveState();
+  renderQueue();
+  // Sync lên Sheets nếu có
+  if (STATE.config.appsScriptUrl) {
+    try {
+      await fetch(STATE.config.appsScriptUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'addToQueue', item })
+      });
+      toast('✅ Đã duyệt + sync lên Google Sheets!', 'success');
+    } catch(e) { toast('Đã duyệt nhưng lỗi sync Sheets: ' + e.message, 'error'); }
+  } else {
+    toast('✅ Đã duyệt bài!', 'success');
+  }
+}
+
+function deleteQueueItem(id) {
+  STATE.queue = STATE.queue.filter(q => q.id !== id);
+  saveState();
+  renderQueue();
+  updateQueueCount();
+  toast('Đã xóa bài khỏi hàng chờ', 'info');
+}
+
+async function runScheduler() {
+  if (!STATE.config.appsScriptUrl) { toast('Chưa cài Apps Script URL trong Cài đặt!', 'error'); return; }
+  try {
+    toast('⏳ Đang chạy scheduler...', 'info');
+    const r = await fetch(STATE.config.appsScriptUrl, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'runScheduler' })
+    });
+    const d = await r.json();
+    toast('✅ Scheduler đã chạy: ' + (d.message || 'OK'), 'success');
+    setTimeout(() => { loadLog(); renderQueue(); }, 2000);
+  } catch(e) { toast('Lỗi: ' + e.message, 'error'); }
+}
+
+let currentQueueFilter = 'all';
+function filterQueue(f, btn) {
+  currentQueueFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderQueue();
+}
+
+function renderQueue() {
+  const list = document.getElementById('queueList');
+  let items = [...STATE.queue];
+  if (currentQueueFilter !== 'all') {
+    items = items.filter(i => i.status.includes(currentQueueFilter.replace('✅ ','')));
+  }
+
+  if (!items.length) {
+    list.innerHTML = `<div class="empty-state">
+      <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="8" y="8" width="32" height="32" rx="4"/><path d="M16 24h16M16 32h10"/></svg>
+      <h3>Không có bài nào</h3></div>`;
+    return;
+  }
+
+  list.innerHTML = items.map(item => {
+    const statusMap = {
+      'PENDING_REVIEW': '<span class="badge badge-amber">Chờ duyệt</span>',
+      'APPROVED': '<span class="badge badge-blue">Đã duyệt</span>',
+      'POSTED': '<span class="badge badge-green">Đã đăng</span>',
+      '✅ POSTED': '<span class="badge badge-green">Đã đăng</span>',
+      'ERROR': '<span class="badge badge-red">Lỗi</span>',
+      '❌ ERROR': '<span class="badge badge-red">Lỗi</span>',
+      'PAUSED': '<span class="badge badge-gray">Tạm dừng</span>',
+    };
+    const status = statusMap[item.status] || `<span class="badge badge-gray">${item.status}</span>`;
+    const thumb = item.image_svg
+      ? `<div class="queue-thumb">${item.image_svg.substring(0, 2000)}...</div>`
+      : `<div class="queue-thumb"><span class="queue-thumb-placeholder">🖼</span></div>`;
+    const isPending = item.status === 'PENDING_REVIEW';
+    const t = item.schedule_time ? new Date(item.schedule_time).toLocaleString('vi-VN') : '—';
+
+    return `<div class="queue-card" id="qcard-${item.id}">
+      ${thumb}
+      <div class="queue-info">
+        <h4>${item.school_name}</h4>
+        <div class="meta">
+          ${status}
+          <span class="badge badge-gray">${item.visa_type}</span>
+          <span class="badge badge-gray">${item.post_type}</span>
+          <span class="text-sm text-muted">⏰ ${t}</span>
+        </div>
+        <div class="queue-caption">${item.caption || '—'}</div>
+      </div>
+      <div class="queue-actions">
+        ${isPending ? `<button class="btn btn-sm btn-primary" onclick="approveAndSchedule('${item.id}')">✓ Duyệt</button>` : ''}
+        <button class="btn btn-sm btn-ghost" onclick="editQueueItem('${item.id}')">✏️</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteQueueItem('${item.id}')">🗑</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function editQueueItem(id) {
+  const item = STATE.queue.find(q => q.id === id);
+  if (!item) return;
+  document.getElementById('schoolName').value = item.school_name;
+  document.getElementById('visaType').value = item.visa_type;
+  document.getElementById('postType').value = item.post_type;
+  STATE.currentCaption = item.caption;
+  STATE.currentImageSvg = item.image_svg;
+  showView('compose');
+  showCaptionEditor(item.caption);
+  if (item.image_svg) showImagePreview(item.image_svg);
+  showSchedulePanel();
+  document.getElementById('scheduleTime').value = item.schedule_time || '';
+}
+
+// ============================================================
+// IMAGE EDITOR MODAL
+// ============================================================
+function openImageEditor() {
+  const modal = document.getElementById('imageEditorModal');
+  const canvas = document.getElementById('modalImageCanvas');
+  canvas.innerHTML = STATE.currentImageSvg;
+  const school = STATE.currentSchool || {};
+  document.getElementById('img-school-name').value = school.name_vn || '';
+  document.getElementById('img-city').value = school.city || '';
+  document.getElementById('img-tuition').value = school.tuition_note || school.invoice_total || '';
+  document.getElementById('img-scholarship').value = school.scholarship_entry || school.scholarship || '';
+  document.getElementById('img-highlight').value = (Array.isArray(school.highlights) ? school.highlights.join(' | ') : school.highlights) || '';
+  modal.classList.add('open');
+}
+
+function changeImageColor(c1, c2, dot) {
+  STATE.imageColors = { primary: c1, secondary: c2 };
+  document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
+  dot.classList.add('active');
+  rebuildModalImage();
+}
+
+function updateImageField(field) {
+  rebuildModalImage();
+}
+
+function rebuildModalImage() {
+  const school = {
+    ...(STATE.currentSchool || {}),
+    name_vn: document.getElementById('img-school-name').value,
+    city: document.getElementById('img-city').value,
+    tuition_note: document.getElementById('img-tuition').value,
+    scholarship_entry: document.getElementById('img-scholarship').value,
+    highlights: document.getElementById('img-highlight').value.split('|').map(s => s.trim())
+  };
+  const visa = document.getElementById('visaType').value;
+  const svg = buildImageSVG(school, visa, STATE.imageColors);
+  document.getElementById('modalImageCanvas').innerHTML = svg;
+}
+
+function applyImageEdit() {
+  const school = {
+    ...(STATE.currentSchool || {}),
+    name_vn: document.getElementById('img-school-name').value,
+    city: document.getElementById('img-city').value,
+    tuition_note: document.getElementById('img-tuition').value,
+    scholarship_entry: document.getElementById('img-scholarship').value,
+    highlights: document.getElementById('img-highlight').value.split('|').map(s => s.trim())
+  };
+  const visa = document.getElementById('visaType').value;
+  const svg = buildImageSVG(school, visa, STATE.imageColors);
+  STATE.currentImageSvg = svg;
+  showImagePreview(svg);
+  closeModal('imageEditorModal');
+  toast('✅ Ảnh đã được cập nhật!', 'success');
+}
+
+function downloadImageFromModal() {
+  const svg = document.getElementById('modalImageCanvas').innerHTML;
+  downloadSVG(svg, 'ytk_post_custom.svg');
+}
+
+function downloadImage() { downloadSVG(STATE.currentImageSvg, 'ytk_post.svg'); }
+
+function downloadSVG(svgContent, filename) {
+  const blob = new Blob([svgContent], { type: 'image/svg+xml' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
+}
+
+// ============================================================
+// LOG
+// ============================================================
+function logEntry(schoolName, visaType, caption, pages) {
+  const entry = {
+    time: new Date().toLocaleString('vi-VN'),
+    school: schoolName, visa: visaType,
+    pages: pages.join(', '),
+    caption: caption.substring(0, 150) + '...',
+    result: pages.length + '/' + (STATE.config.pages.length || pages.length) + ' pages'
+  };
+  STATE.log.unshift(entry);
+  if (STATE.log.length > 200) STATE.log = STATE.log.slice(0, 200);
+  saveState();
+}
+
+function loadLog() { renderLog(); }
+
+function renderLog() {
+  const tbody = document.getElementById('logTableBody');
+  if (!STATE.log.length) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--text-3);">Chưa có lịch sử đăng bài</td></tr>';
+    return;
+  }
+  tbody.innerHTML = STATE.log.slice(0, 50).map(l => `
+    <tr>
+      <td style="white-space:nowrap;font-size:12px">${l.time}</td>
+      <td><b>${l.school || '—'}</b></td>
+      <td><span class="badge badge-gray">${l.visa || '—'}</span></td>
+      <td><span class="badge badge-blue">${l.post_type || 'tuyen_sinh'}</span></td>
+      <td style="font-size:12px">${l.pages || '—'}</td>
+      <td><span class="badge badge-green">${l.result || '—'}</span></td>
+    </tr>`).join('');
+
+  // Stats
+  document.getElementById('stat-total').textContent = STATE.log.length;
+  const today = new Date().toLocaleDateString('vi-VN');
+  const todayCount = STATE.log.filter(l => l.time?.startsWith(today.split('/').reverse().join('/'))).length;
+  document.getElementById('stat-today').textContent = todayCount;
+  const weekAgo = new Date(); weekAgo.setDate(weekAgo.getDate()-7);
+  const weekCount = STATE.log.filter(l => { try { return new Date(l.time) > weekAgo; } catch{return false;} }).length;
+  document.getElementById('stat-week').textContent = weekCount;
+  document.getElementById('stat-rate').textContent = STATE.log.length > 0 ? '100%' : '—';
+}
+
+// ============================================================
+// SCHOOLS
+// ============================================================
+function renderSchools() {
+  const grid = document.getElementById('schoolsGrid');
+  const q = document.getElementById('schoolSearch').value.toLowerCase();
+  const vf = document.getElementById('visaFilter').value;
+  const filtered = STATE.schools.filter(s =>
+    (!q || s.name_vn?.toLowerCase().includes(q) || s.city?.toLowerCase().includes(q)) &&
+    (!vf || s.visa_type === vf)
+  );
+
+  if (!filtered.length) {
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
+      <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 4h8M8 12h32M12 20h24M16 28h16M20 36h8"/></svg>
+      <h3>Chưa có dữ liệu trường</h3>
+      <p class="text-sm">Import từ Google Sheets hoặc thêm thủ công</p>
+    </div>`;
+    return;
+  }
+
+  const visaColor = { 'D2-1':'badge-green','D2-2':'badge-green','D2-3':'badge-green',
+    'D4-1':'badge-blue','Điều dưỡng':'badge-red','E-7-M':'badge-amber','Đại đô thị':'badge-blue' };
+
+  grid.innerHTML = filtered.map(s => `
+    <div class="card card-sm" style="cursor:pointer" onclick="selectSchool('${s.id}')">
+      <div class="flex items-center gap-8 mb-8">
+        <span class="badge ${visaColor[s.visa_type]||'badge-gray'}">${s.visa_type}</span>
+        <span class="badge badge-gray">${s.ranking||'Top 2'}</span>
+        <span class="badge badge-gray">${s.city||''}</span>
+      </div>
+      <h4 class="font-semibold" style="font-size:13px;margin-bottom:4px;">${s.name_vn}</h4>
+      <p class="text-sm text-muted">${s.name_kr||''}</p>
+      <div class="divider" style="margin:10px 0"></div>
+      <div class="flex gap-8">
+        <span class="text-sm text-muted">TOPIK: ${s.topik_required||'—'}</span>
+        <span class="text-sm text-muted">• ${s.duration||'—'}</span>
+      </div>
+      <p class="text-sm" style="margin-top:6px;color:var(--amber);font-weight:500">${(s.scholarship_entry||'').substring(0,60)}</p>
+    </div>`).join('');
+}
+
+function filterSchools() { renderSchools(); }
+
+function selectSchool(id) {
+  const school = STATE.schools.find(s => s.id === id);
+  if (!school) return;
+  document.getElementById('schoolName').value = school.name_vn;
+  document.getElementById('visaType').value = school.visa_type;
+  STATE.currentSchool = school;
+  showView('compose');
+  tryLoadSchoolPreview();
+  toast(`Đã chọn: ${school.name_vn}`, 'success');
+}
+
+// ============================================================
+// SETTINGS
+// ============================================================
+function renderSettings() {
+  document.getElementById('cfg-claude-key').value = STATE.config.claudeKey || '';
+  document.getElementById('cfg-sheet-id').value = STATE.config.sheetId || '';
+  document.getElementById('cfg-apps-script-url').value = STATE.config.appsScriptUrl || '';
+  renderPagesList();
+}
+
+function renderPagesList() {
+  const list = document.getElementById('pagesList');
+  if (!STATE.config.pages.length) {
+    list.innerHTML = '<p class="text-sm text-muted">Chưa có page nào</p>';
+    return;
+  }
+  list.innerHTML = STATE.config.pages.map((p,i) => `
+    <div class="page-card">
+      <div class="page-dot"></div>
+      <div style="flex:1"><b style="font-size:13px">${p.name}</b><br><span class="text-sm text-muted">ID: ${p.page_id}</span></div>
+      <button class="btn btn-sm btn-ghost" onclick="removePage(${i})">✕</button>
+    </div>`).join('');
+}
+
+function saveConfig() {
+  STATE.config.claudeKey = document.getElementById('cfg-claude-key').value.trim();
+  STATE.config.sheetId = document.getElementById('cfg-sheet-id').value.trim();
+  STATE.config.appsScriptUrl = document.getElementById('cfg-apps-script-url').value.trim();
+  saveState();
+  updateUI();
+  toast('✅ Đã lưu cài đặt!', 'success');
+}
+
+async function testConnection() {
+  const url = STATE.config.appsScriptUrl || document.getElementById('cfg-apps-script-url').value.trim();
+  if (!url) { toast('Chưa nhập Apps Script URL!', 'error'); return; }
+  try {
+    toast('🔌 Đang test kết nối...', 'info');
+    const r = await fetch(url, {
+      method: 'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ action: 'ping' })
+    });
+    if (r.ok) { toast('✅ Kết nối thành công!', 'success'); updateSheetsStatus(true); }
+    else throw new Error('HTTP ' + r.status);
+  } catch(e) { toast('❌ Lỗi kết nối: ' + e.message, 'error'); updateSheetsStatus(false); }
+}
+
+function addPageModal() { document.getElementById('addPageModal').classList.add('open'); }
+
+function savePage() {
+  const name  = document.getElementById('new-page-name').value.trim();
+  const id    = document.getElementById('new-page-id').value.trim();
+  const token = document.getElementById('new-page-token').value.trim();
+  if (!name || !id || !token) { toast('Điền đủ thông tin page!', 'error'); return; }
+  STATE.config.pages.push({ name, page_id: id, access_token: token });
+  saveState();
+  renderPagesList();
+  closeModal('addPageModal');
+  toast('✅ Đã thêm page: ' + name, 'success');
+  document.getElementById('new-page-name').value = '';
+  document.getElementById('new-page-id').value = '';
+  document.getElementById('new-page-token').value = '';
+}
+
+function removePage(idx) {
+  STATE.config.pages.splice(idx, 1);
+  saveState();
+  renderPagesList();
+  toast('Đã xóa page', 'info');
+}
+
+async function triggerScheduler() {
+  if (!STATE.config.appsScriptUrl) { toast('Chưa cài Apps Script URL!', 'error'); return; }
+  await runScheduler();
+}
+
+// ============================================================
+// FACEBOOK POSTING (qua Apps Script hoặc trực tiếp)
+// ============================================================
+async function postToFacebook(caption, imageSvg, pageIds) {
+  if (STATE.config.appsScriptUrl) {
+    const r = await fetch(STATE.config.appsScriptUrl, {
+      method: 'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ action: 'postNow', caption, imageSvg, pageIds })
+    });
+    if (!r.ok) throw new Error('Apps Script error ' + r.status);
+    return await r.json();
+  }
+  // Direct FB API (chỉ text, không upload ảnh từ browser)
+  const pages = STATE.config.pages.filter(p => pageIds.includes(p.page_id));
+  const results = [];
+  for (const page of pages) {
+    const r = await fetch(`https://graph.facebook.com/v19.0/${page.page_id}/feed`, {
+      method: 'POST',
+      body: new URLSearchParams({ message: caption, access_token: page.access_token })
+    });
+    const d = await r.json();
+    if (d.error) throw new Error(d.error.message);
+    results.push(d);
+  }
+  return results;
+}
+
+// ============================================================
+// UTILS
+// ============================================================
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+function toast(msg, type = 'info') {
+  const container = document.getElementById('toastContainer');
+  const t = document.createElement('div');
+  t.className = `toast ${type === 'success' ? 'success' : type === 'error' ? 'error' : ''}`;
+  t.textContent = msg;
+  container.appendChild(t);
+  setTimeout(() => { t.style.opacity = '0'; t.style.transition = 'opacity .3s'; setTimeout(() => t.remove(), 300); }, 3500);
+}
+
+function updateQueueCount() {
+  const pending = STATE.queue.filter(q => q.status === 'PENDING_REVIEW').length;
+  const el = document.getElementById('queueCount');
+  if (pending > 0) { el.textContent = pending; el.style.display = ''; }
+  else el.style.display = 'none';
+}
+
+function updateSheetsStatus(connected) {
+  const el = document.getElementById('sheetsStatus');
+  if (connected) { el.textContent = '● Đã kết nối Sheets'; el.style.color = '#396B14'; el.style.background = '#EBF3E4'; }
+  else { el.textContent = '● Chưa kết nối Sheets'; el.style.color = ''; el.style.background = ''; }
+}
+
+function updateUI() {
+  updateQueueCount();
+  if (STATE.config.appsScriptUrl) updateSheetsStatus(true);
+
+  // Populate school datalist
+  const dl = document.getElementById('schoolList');
+  dl.innerHTML = STATE.schools.map(s => `<option value="${s.name_vn}">${s.name_vn} (${s.visa_type})</option>`).join('');
+}
+
+function loadQueue() { /* reload from Sheets if needed */ renderQueue(); }
+
+// ============================================================
+// LOAD SAMPLE DATA (nếu chưa có)
+// ============================================================
+function loadSampleSchools() {
+  if (STATE.schools.length > 0) return;
+  STATE.schools = [
+    { id:'bufs-d41', name_vn:'Trường Đại Học Ngoại Ngữ Busan', name_kr:'부산외국어대학교', visa_type:'D4-1', city:'Busan', ranking:'Top 1', duration:'1-2 năm', topik_required:'Không yêu cầu', gpa_required:'7.0', tuition_note:'5,200,000 won/năm', invoice_total:'5,330,000 won', scholarship_entry:'GPA 8.0+: học bổng 30% kỳ đầu', majors:['Tiếng Hàn','Ngôn ngữ quốc tế'], highlights:['Top 1 xuất sắc','Không cần sổ đóng băng','Nhận tất cả vùng miền','Gần trung tâm Busan'] },
+    { id:'ulsan-d41', name_vn:'Trường Cao Đẳng Khoa Học Ulsan', name_kr:'울산과학대학교', visa_type:'D4-1', city:'Ulsan', ranking:'Top 1', duration:'1-2 năm', topik_required:'Không yêu cầu', gpa_required:'7.0', tuition_note:'5,400,000 won/năm', invoice_total:'5,450,000 won', scholarship_entry:'GPA 8.0+: học bổng 30% kỳ đầu (chuyển thẳng vào TK)', majors:['Tiếng Hàn thực hành'], highlights:['Top 1','Không sổ đóng băng','Học bổng tự động cho GPA 8.0+','Ulsan - thành phố công nghiệp giàu'] },
+    { id:'silla-d22', name_vn:'Trường Đại Học Silla', name_kr:'신라대학교', visa_type:'D2-2', city:'Busan', ranking:'Top 2', duration:'4 năm', topik_required:'Nợ TOPIK', gpa_required:'6.5', tuition_note:'Kinh doanh: 3,243,500 won | Kỹ thuật: 4,378,000 won', scholarship_entry:'TOPIK 0-2: -30% | TOPIK 3: -50% | TOPIK 4: -70% | TOPIK 5-6: -100%', scholarship_continue:'GPA 2.0+: -25%', majors:['Kinh doanh Toàn cầu','Kỹ thuật cơ khí','Điện-Điện tử','Máy tính','Bán dẫn','Webtoon','Làm đẹp'], highlights:['Cho nợ TOPIK','Năm 1 học tiếng Hàn','Tuần học 3 buổi','Dễ đổi E7/F2','Nhận học sinh từng trượt code'] },
+    { id:'kyungnam-d21', name_vn:'Trường Cao Đẳng Thông Tin Kyungnam', name_kr:'경남정보대학교', visa_type:'D2-1', city:'Busan', ranking:'Top 2', duration:'2 năm', topik_required:'TOPIK 2', gpa_required:'7.0', tuition_note:'Cơ khí/Ô tô/Điện tử/Làm đẹp: 3,468,300 won | Điều dưỡng: 3,175,000 won', scholarship_entry:'TOPIK 2: -20% | TOPIK 3: -30% | TOPIK 4: -50% | TOPIK 5: -80%', scholarship_continue:'Tốt nghiệp tại trường: -50%', dormitory:'1,050,000 won/6 tháng (2 người/phòng)', majors:['Cơ khí','Ô tô điện-Hydro','Điện tử bán dẫn','Điện','K-Beauty','Điều dưỡng'], highlights:['Tuần học 2-3 buổi','Sasang-gu Busan','Miễn phí xét duyệt','Dễ đổi E7'] },
+    { id:'kyungnam-nurse', name_vn:'Trường Cao Đẳng Kyungnam - Điều Dưỡng', name_kr:'경남정보대학교', visa_type:'Điều dưỡng', city:'Busan', ranking:'Top 2', duration:'2 năm', topik_required:'TOPIK 2+', gpa_required:'', tuition_note:'3,521,300 won/kỳ', scholarship_entry:'TOPIK 2: -20% | TOPIK 3: -30% | TOPIK 4: -50% | TOPIK 5: -80%', majors:['Chăm sóc Điều dưỡng (요양보호사)'], highlights:['Visa E-7 sau tốt nghiệp','Thực tập hưởng lương','Chứng chỉ quốc gia Hàn','Thu nhập ổn định'] },
+    { id:'kyungnam-e7m', name_vn:'Trường Cao Đẳng Kyungnam - E-7-M', name_kr:'경남정보대학교', visa_type:'E-7-M', city:'Busan', ranking:'Top 2', duration:'2 năm', topik_required:'TOPIK 3+', tuition_note:'Cơ khí: 3,468,000 won/kỳ (học bổng ~70%)', scholarship_entry:'Từ hệ tiếng lên: -50% | TOPIK 3: -30% | TOPIK 4: -50% | TOPIK 5: -80%', financial_proof:'Miễn CMTC khi đổi visa', majors:['Ngành Cơ khí'], highlights:['Nhà nước bảo đảm việc làm','Làm thêm 35h/tuần','Đổi visa E-7-M sau TN','Miễn chứng minh tài chính khi đổi visa'] },
+    { id:'donggang-d21', name_vn:'Trường Cao Đẳng Donggang', name_kr:'동강대학교', visa_type:'D2-1', city:'Gwangju', ranking:'Top 3', duration:'2 năm', topik_required:'TOPIK 2 (ngoài nước) | Nợ TOPIK (trong nước)', gpa_required:'7.0', tuition_note:'AI Ô tô: 2,953,000 won | Hàn ngữ: 2,779,000 won | Ẩm thực: 3,144,000 won', scholarship_entry:'Nhập học kỳ đầu: -50%', scholarship_continue:'Kỳ 2: -30% | Kỳ 3-4: -20% | TOPIK 5-6: học bổng toàn phần 1 năm', dormitory:'720,000 won/6 tháng', majors:['AI Ô tô','Hàn ngữ','Ẩm thực/Làm bánh','Làm đẹp','Điều dưỡng (4 năm)'], highlights:['Học bổng 50% kỳ đầu','Gwangju - chi phí rẻ nhất HQ','Liên kết Kia, Samsung','Hỗ trợ đổi E7'] },
+  ];
+  saveState();
+  updateUI();
+}
+
+// ============================================================
+// INIT
+// ============================================================
+loadState();
+loadSampleSchools();
+updateQueueCount();
+</script>
+</body>
+</html>
