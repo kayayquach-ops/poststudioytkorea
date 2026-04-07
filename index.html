@@ -822,15 +822,16 @@ async function generateContent() {
 }
 
 async function callClaudeForCaption(school, postType, tone, notes) {
-  // Ưu tiên: relay qua Apps Script (nếu đã cài)
+  // Relay qua Apps Script dùng GET (tránh CORS với doPost)
   if (STATE.config.appsScriptUrl) {
-    const resp = await fetch(STATE.config.appsScriptUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'generateCaption', school, postType, tone, notes })
-    });
-    if (!resp.ok) throw new Error('Apps Script error: ' + resp.status);
+    const payload = encodeURIComponent(JSON.stringify({
+      action: 'generateCaption', school, postType, tone, notes
+    }));
+    const url = STATE.config.appsScriptUrl + '?data=' + payload;
+    const resp = await fetch(url, { redirect: 'follow' });
+    if (!resp.ok) throw new Error('Apps Script lỗi: ' + resp.status);
     const data = await resp.json();
+    if (data.error) throw new Error(data.error);
     return data.caption;
   }
 
